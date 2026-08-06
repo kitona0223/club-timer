@@ -28,46 +28,47 @@
             border-radius: 16px;
             padding: 30px 20px;
             width: 100%;
-            max-width: 450px;
+            max-width: 480px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             text-align: center;
         }
 
         h1 {
             font-size: 20px;
-            margin: 0 0 20px 0;
+            margin: 0 0 15px 0;
             color: #cbd5e1;
             letter-spacing: 1px;
         }
 
-        /* ⏱️ タイマー数値表示 */
+        /* ⏱️ タイマー数値表示（遠くからでも見やすい高発色イエロー） */
         .timer-display {
-            font-family: monospace, sans-serif;
-            font-size: 72px;
-            font-weight: bold;
-            color: #38bdf8;
-            margin: 15px 0 25px 0;
+            font-family: 'Courier New', Courier, monospace, sans-serif;
+            font-size: 80px;
+            font-weight: 900;
+            color: #facc15; /* 視認性の高いイエロー */
+            margin: 10px 0 20px 0;
             letter-spacing: 2px;
-            text-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+            text-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+            line-height: 1;
         }
 
         /* タイムアップ時の点滅アニメーション */
         .time-up {
-            color: #ef4444 !important;
-            animation: flash 0.8s infinite alternate;
-            text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            color: #ff3333 !important;
+            animation: flash 0.6s infinite alternate;
+            text-shadow: 0 0 30px rgba(255, 51, 51, 0.8);
         }
 
         @keyframes flash {
             0% { opacity: 1; }
-            100% { opacity: 0.3; }
+            100% { opacity: 0.2; }
         }
 
         /* 🔘 操作ボタンエリア */
         .controls {
             display: flex;
             gap: 12px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .btn {
@@ -104,7 +105,7 @@
         .preset-group {
             display: flex;
             gap: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .btn-preset {
@@ -112,7 +113,7 @@
             background-color: #334155;
             color: #f1f5f9;
             border: 1px solid #475569;
-            padding: 8px;
+            padding: 10px 5px;
             font-size: 14px;
             font-weight: bold;
             border-radius: 6px;
@@ -145,11 +146,70 @@
             outline: none;
         }
 
-        /* 横画面対応 */
-        @media (orientation: landscape) and (max-height: 500px) {
-            body { padding: 10px; }
-            .timer-card { max-width: 90vw; padding: 15px; }
-            .timer-display { font-size: 60px; margin: 5px 0 15px 0; }
+        /* 🔄 横画面（スマホを横にした時）の最適化超強力レイアウト */
+        @media (orientation: landscape) {
+            body {
+                padding: 0;
+                background-color: #000000;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .timer-card {
+                max-width: 100vw;
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+                background-color: #000000;
+                box-shadow: none;
+                padding: 2vh 3vw;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                align-items: center;
+            }
+
+            h1 {
+                font-size: 4vh;
+                margin: 0;
+                color: #94a3b8;
+            }
+
+            /* ✨ 10m先からでも見える超巨大文字 */
+            .timer-display {
+                font-size: 36vh; 
+                margin: 0;
+                letter-spacing: 4px;
+                text-shadow: 0 0 35px rgba(250, 204, 21, 0.5);
+            }
+
+            .controls {
+                width: 80vw;
+                max-width: 600px;
+                margin-bottom: 0;
+            }
+
+            .btn {
+                padding: 1.5vh 0;
+                font-size: 3vh;
+            }
+
+            .preset-group {
+                width: 80vw;
+                max-width: 600px;
+                margin-bottom: 0;
+            }
+
+            .btn-preset {
+                font-size: 2vh;
+                padding: 1vh;
+            }
+
+            .custom-input {
+                display: none; /* 横画面時はスッキリさせるため手動入力を非表示 */
+            }
         }
     </style>
 </head>
@@ -175,7 +235,7 @@
             <button class="btn-preset" onclick="addTime(1)">＋1分</button>
         </div>
 
-        <!-- 手動入力 -->
+        <!-- 手動入力（縦画面時のみ表示） -->
         <div class="custom-input">
             <input type="number" id="inputMin" value="10" min="0" max="99"> 分
             <input type="number" id="inputSec" value="0" min="0" max="59"> 秒
