@@ -7,6 +7,12 @@
     <!-- 📱 ホーム画面用アイコンの設定 -->
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" href="icon.png">
+
+    <!-- ⏱️ デジタルタイマー風フォントの読み込み (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
     <style>
         * {
             box-sizing: border-box;
@@ -43,14 +49,15 @@
             letter-spacing: 1px;
         }
 
-        /* ⏱️ タイマー数値表示（遠くからでも見やすい高発色イエロー） */
+        /* ⏱️ デジタル時計フォント適用エリア */
         .timer-display {
-            font-family: 'Courier New', Courier, monospace, sans-serif;
-            font-size: 80px;
-            font-weight: 900;
-            color: #facc15; /* 視認性の高いイエロー */
+            /* Share Tech Mono を優先適用。無ければ端末の等幅フォント */
+            font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
+            font-size: 88px;
+            font-weight: bold;
+            color: #facc15; /* 高発色イエロー */
             margin: 10px 0 20px 0;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
             text-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
             line-height: 1;
         }
@@ -180,11 +187,11 @@
                 color: #94a3b8;
             }
 
-            /* ✨ 10m先からでも見える超巨大文字 */
+            /* ✨ 横画面時の超巨大デジタル数字 */
             .timer-display {
-                font-size: 36vh; 
+                font-size: 38vh; 
                 margin: 0;
-                letter-spacing: 4px;
+                letter-spacing: 6px;
                 text-shadow: 0 0 35px rgba(250, 204, 21, 0.5);
             }
 
