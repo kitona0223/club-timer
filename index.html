@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" href="icon.png">
 
-    <!-- ⏱️ デジタルタイマー風フォントの読み込み (Google Fonts) -->
+    <!-- ⏱️ デジタルタイマー風フォント (Google Fonts) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -35,25 +35,35 @@
             background-color: #1e293b;
             border: 1px solid #334155;
             border-radius: 16px;
-            padding: 30px 20px;
+            padding: 24px 20px;
             width: 100%;
             max-width: 480px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             text-align: center;
         }
 
-        h1 {
-            font-size: 20px;
-            margin: 0 0 15px 0;
-            color: #cbd5e1;
-            letter-spacing: 1px;
+        .header-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: bold;
         }
 
-        /* ⏱️ デジタル時計フォント適用エリア */
+        .mode-badge {
+            background-color: #334155;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #38bdf8;
+            font-size: 12px;
+        }
+
+        /* ⏱️ デジタル時計フォント表示 */
         .timer-display {
-            /* Share Tech Mono を優先適用。無ければ端末の等幅フォント */
             font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
-            font-size: 88px;
+            font-size: 84px;
             font-weight: bold;
             color: #facc15; /* 高発色イエロー */
             margin: 10px 0 20px 0;
@@ -74,89 +84,51 @@
             100% { opacity: 0.2; }
         }
 
-        /* 🔘 操作ボタンエリア */
-        .controls {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
+        /* 🔘 ボタンパネル（グリッドレイアウト 2列×3行） */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
         .btn {
-            flex: 1;
-            padding: 14px;
-            font-size: 18px;
+            padding: 14px 10px;
+            font-size: 16px;
             font-weight: bold;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
+            transition: transform 0.1s, background-color 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
 
         .btn:active {
             transform: scale(0.96);
         }
 
-        .btn-start {
-            background-color: #16a34a;
-            color: #ffffff;
-        }
+        .btn-start { background-color: #16a34a; color: #ffffff; }
+        .btn-pause { background-color: #d97706; color: #ffffff; }
+        .btn-reset { background-color: #475569; color: #ffffff; }
+        .btn-add   { background-color: #0284c7; color: #ffffff; }
 
-        .btn-pause {
-            background-color: #d97706;
-            color: #ffffff;
-        }
-
-        .btn-reset {
-            background-color: #475569;
-            color: #ffffff;
-        }
-
-        /* ⚡ プリセットボタン */
-        .preset-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .btn-preset {
-            flex: 1;
+        /* トグルボタン（ループ・フリー） */
+        .btn-toggle {
             background-color: #334155;
-            color: #f1f5f9;
-            border: 1px solid #475569;
-            padding: 10px 5px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .btn-preset:active {
-            background-color: #475569;
-        }
-
-        /* ⚙️ 時間入力フォーム */
-        .custom-input {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
             color: #94a3b8;
-        }
-
-        .custom-input input {
-            width: 60px;
-            padding: 8px;
-            font-size: 16px;
-            text-align: center;
             border: 1px solid #475569;
-            border-radius: 6px;
-            background-color: #0f172a;
-            color: #ffffff;
-            outline: none;
         }
 
-        /* 🔄 横画面（スマホを横にした時）の最適化レイアウト */
+        .btn-toggle.active {
+            background-color: #8b5cf6; /* アクティブ時はパープル表示 */
+            color: #ffffff;
+            border-color: #a78bfa;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+        }
+
+        /* 🔄 横画面（スマホを横にした時）：左サイドボタン / 右サイドタイマー */
         @media (orientation: landscape) {
             body {
                 padding: 0;
@@ -173,52 +145,50 @@
                 border: none;
                 background-color: #000000;
                 box-shadow: none;
-                padding: 2vh 3vw;
+                padding: 3vh 4vw;
 
+                /* 左に設定ボタン、右に巨大タイマーを配置 */
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            /* 左側：操作パネルエリア */
+            .left-panel {
+                width: 32vw;
+                max-width: 340px;
                 display: flex;
                 flex-direction: column;
-                justify-content: space-around;
-                align-items: center;
+                justify-content: center;
+                gap: 15px;
             }
 
-            h1 {
-                font-size: 4vh;
-                margin: 0;
-                color: #94a3b8;
-            }
-
-            /* ✨ 横画面時の超巨大デジタル数字 */
-            .timer-display {
-                font-size: 38vh; 
-                margin: 0;
-                letter-spacing: 6px;
-                text-shadow: 0 0 35px rgba(250, 204, 21, 0.5);
-            }
-
-            .controls {
-                width: 80vw;
-                max-width: 600px;
-                margin-bottom: 0;
+            .controls-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
             }
 
             .btn {
-                padding: 1.5vh 0;
-                font-size: 3vh;
+                padding: 2.2vh 0;
+                font-size: 2.5vh;
             }
 
-            .preset-group {
-                width: 80vw;
-                max-width: 600px;
-                margin-bottom: 0;
+            /* 右側：タイマー表示エリア */
+            .right-panel {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
             }
 
-            .btn-preset {
-                font-size: 2vh;
-                padding: 1vh;
-            }
-
-            .custom-input {
-                display: none;
+            /* 10m先からでもくっきり見える超巨大文字 */
+            .timer-display {
+                font-size: 38vh;
+                margin: 0;
+                letter-spacing: 6px;
+                text-shadow: 0 0 40px rgba(250, 204, 21, 0.5);
             }
         }
     </style>
@@ -226,43 +196,56 @@
 <body>
 
     <div class="timer-card">
-        <h1>⏱️ CLUB TIMER</h1>
+        <!-- 左サイドパネル（横画面時：左側 / 縦画面時：下部） -->
+        <div class="left-panel">
+            <div class="header-status">
+                <span style="letter-spacing:1px;">⏱️ CLUB TIMER</span>
+                <span id="modeBadge" class="mode-badge">カウントダウン</span>
+            </div>
 
-        <!-- タイマー表示 -->
-        <div id="display" class="timer-display">10:00</div>
+            <!-- 6つの設定ボタン -->
+            <div class="controls-grid">
+                <!-- ① スタート -->
+                <button class="btn btn-start" onclick="startTimer()">▶ スタート</button>
+                
+                <!-- ② 一時停止 -->
+                <button class="btn btn-pause" onclick="pauseTimer()">⏸ 一時停止</button>
 
-        <!-- メイン操作ボタン -->
-        <div class="controls">
-            <button id="startBtn" class="btn btn-start" onclick="toggleTimer()">スタート</button>
-            <button class="btn btn-reset" onclick="resetTimer()">リセット</button>
+                <!-- ③ リセット -->
+                <button class="btn btn-reset" onclick="resetTimer()">🔄 リセット</button>
+
+                <!-- ④ +1分 -->
+                <button class="btn btn-add" onclick="addTime(1)">＋1分</button>
+
+                <!-- ⑤ ループ -->
+                <button id="loopBtn" class="btn btn-toggle" onclick="toggleLoop()">🔁 ループ</button>
+
+                <!-- ⑥ フリー（カウントアップ） -->
+                <button id="freeBtn" class="btn btn-toggle" onclick="toggleFreeMode()">⏱ フリー</button>
+            </div>
         </div>
 
-        <!-- プリセットボタン -->
-        <div class="preset-group">
-            <button class="btn-preset" onclick="setPreset(1)">1分</button>
-            <button class="btn-preset" onclick="setPreset(5)">5分</button>
-            <button class="btn-preset" onclick="setPreset(10)">10分</button>
-            <button class="btn-preset" onclick="addTime(1)">＋1分</button>
-        </div>
-
-        <!-- 手動入力（縦画面時のみ表示） -->
-        <div class="custom-input">
-            <input type="number" id="inputMin" value="10" min="0" max="99"> 分
-            <input type="number" id="inputSec" value="0" min="0" max="59"> 秒
-            <button class="btn-preset" style="flex:none; padding:8px 12px;" onclick="applyCustomTime()">設定</button>
+        <!-- 右サイドパネル（横画面時：右側 / 縦画面時：上部） -->
+        <div class="right-panel">
+            <div id="display" class="timer-display">10:00</div>
         </div>
     </div>
 
     <script>
-        let totalSeconds = 600; // 初期値：10分
-        let initialSeconds = 600;
+        let totalSeconds = 600;      // 現在の残り秒数 (初期値 10分)
+        let initialSeconds = 600;    // リセット用の初期設定値
         let timerId = null;
         let isRunning = false;
+        
+        let isLoop = false;          // ループモード
+        let isFreeMode = false;      // フリーモード (カウントアップ)
 
         const displayEl = document.getElementById('display');
-        const startBtn = document.getElementById('startBtn');
+        const modeBadgeEl = document.getElementById('modeBadge');
+        const loopBtn = document.getElementById('loopBtn');
+        const freeBtn = document.getElementById('freeBtn');
 
-        // 時間の表示更新
+        // 時間表示の更新
         function updateDisplay() {
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
@@ -270,77 +253,96 @@
                 String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
         }
 
-        // スタート / パラズ 切り替え
-        function toggleTimer() {
-            if (isRunning) {
-                pauseTimer();
-            } else {
-                startTimer();
-            }
-        }
-
+        // ① スタート
         function startTimer() {
-            if (totalSeconds <= 0) return;
+            if (isRunning) return; // 既に動いている場合はスキップ
 
             isRunning = true;
-            startBtn.innerText = '一時停止';
-            startBtn.className = 'btn btn-pause';
             displayEl.classList.remove('time-up');
 
             timerId = setInterval(() => {
-                totalSeconds--;
-                updateDisplay();
+                if (isFreeMode) {
+                    // フリーモード：カウントアップ
+                    totalSeconds++;
+                    updateDisplay();
+                } else {
+                    // 通常モード：カウントダウン
+                    if (totalSeconds > 0) {
+                        totalSeconds--;
+                        updateDisplay();
+                    }
 
-                if (totalSeconds <= 0) {
-                    clearInterval(timerId);
-                    isRunning = false;
-                    startBtn.innerText = 'スタート';
-                    startBtn.className = 'btn btn-start';
-                    displayEl.classList.add('time-up');
-                    playAlarmSound();
+                    if (totalSeconds <= 0) {
+                        playAlarmSound();
+                        
+                        if (isLoop) {
+                            // ループON：初期時間に戻して再スタート
+                            totalSeconds = initialSeconds;
+                            updateDisplay();
+                        } else {
+                            // ループOFF：停止して点滅通知
+                            clearInterval(timerId);
+                            isRunning = false;
+                            displayEl.classList.add('time-up');
+                        }
+                    }
                 }
             }, 1000);
         }
 
+        // ② 一時停止
         function pauseTimer() {
             clearInterval(timerId);
             isRunning = false;
-            startBtn.innerText = '再開';
-            startBtn.className = 'btn btn-start';
         }
 
+        // ③ リセット
         function resetTimer() {
             pauseTimer();
-            totalSeconds = initialSeconds;
-            startBtn.innerText = 'スタート';
             displayEl.classList.remove('time-up');
+
+            if (isFreeMode) {
+                totalSeconds = 0;
+            } else {
+                totalSeconds = initialSeconds;
+            }
             updateDisplay();
         }
 
-        // プリセット設定
-        function setPreset(minutes) {
-            pauseTimer();
-            totalSeconds = minutes * 60;
-            initialSeconds = totalSeconds;
-            displayEl.classList.remove('time-up');
-            updateDisplay();
-        }
-
-        // 時間追加 (+1分など)
+        // ④ +1分追加
         function addTime(minutes) {
             totalSeconds += minutes * 60;
-            initialSeconds = totalSeconds;
+            if (!isFreeMode) {
+                initialSeconds = totalSeconds;
+            }
             updateDisplay();
         }
 
-        // 手動入力適用
-        function applyCustomTime() {
+        // ⑤ ループ 切り替え
+        function toggleLoop() {
+            isLoop = !isLoop;
+            if (isLoop) {
+                loopBtn.classList.add('active');
+            } else {
+                loopBtn.classList.remove('active');
+            }
+        }
+
+        // ⑥ フリー（カウントアップ）モード 切り替え
+        function toggleFreeMode() {
             pauseTimer();
-            const min = parseInt(document.getElementById('inputMin').value, 10) || 0;
-            const sec = parseInt(document.getElementById('inputSec').value, 10) || 0;
-            totalSeconds = (min * 60) + sec;
-            initialSeconds = totalSeconds;
             displayEl.classList.remove('time-up');
+            isFreeMode = !isFreeMode;
+
+            if (isFreeMode) {
+                freeBtn.classList.add('active');
+                modeBadgeEl.innerText = "フリー (カウントアップ)";
+                totalSeconds = 0;
+            } else {
+                freeBtn.classList.remove('active');
+                modeBadgeEl.innerText = "カウントダウン";
+                totalSeconds = initialSeconds;
+            }
             updateDisplay();
         }
 
