@@ -22,23 +22,24 @@
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 12px;
-            background-color: #0f172a;
+            background-color: #090d16;
             color: #ffffff;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            user-select: none; /* 誤作動防止：長押し選択を禁止 */
         }
 
         .timer-card {
             background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 16px;
+            border: 2px solid #334155;
+            border-radius: 20px;
             padding: 20px 16px;
             width: 100%;
             max-width: 520px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             text-align: center;
         }
 
@@ -46,7 +47,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             color: #94a3b8;
             font-size: 14px;
             font-weight: bold;
@@ -56,10 +57,10 @@
         .wake-lock-status {
             font-size: 11px;
             color: #22c55e;
-            background: rgba(34, 197, 94, 0.1);
-            padding: 2px 8px;
+            background: rgba(34, 197, 94, 0.15);
+            padding: 3px 10px;
             border-radius: 12px;
-            border: 1px solid rgba(34, 197, 94, 0.3);
+            border: 1px solid rgba(34, 197, 94, 0.4);
             display: none;
         }
 
@@ -69,10 +70,10 @@
             font-size: clamp(90px, 28vw, 160px);
             font-weight: bold;
             color: #facc15; /* 高発色イエロー */
-            margin: 0 0 10px 0;
+            margin: 0 0 16px 0;
             letter-spacing: 1px;
             text-shadow: 0 0 30px rgba(250, 204, 21, 0.5);
-            line-height: 0.9;
+            line-height: 0.85;
         }
 
         /* タイムアップ時の点滅アニメーション */
@@ -87,52 +88,93 @@
             100% { opacity: 0.2; }
         }
 
-        /* 🔘 ボタンパネル（グリッドレイアウト 2列×3行） */
+        /* 🔳 真四角ボタンパネル（2行×3列のクリアな仕切りレイアウト） */
         .controls-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(3, 1fr); /* 横3列 */
+            gap: 12px; /* 誤タップ防止のためのしっかりした隙間 */
+            padding: 10px;
+            background-color: #0f172a;
+            border-radius: 16px;
+            border: 1px solid #334155;
         }
 
+        /* 🔲 真四角（正方形）ボタンデザイン */
         .btn {
-            padding: 14px 8px;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
+            aspect-ratio: 1 / 1; /* 1:1 の完全な正方形 */
+            width: 100%;
+            padding: 8px;
+            font-size: 15px;
+            font-weight: 800;
+            border-radius: 14px;
             cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s, color 0.2s;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 6px;
+            transition: all 0.08s ease;
+            box-shadow: 0 5px 0px rgba(0,0,0,0.4); /* 立体的なボタン感 */
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
+        /* ボタンを押したときの確実な手ごたえ（凹む） */
         .btn:active {
-            transform: scale(0.96);
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px rgba(0,0,0,0.4);
         }
 
-        .btn-start { background-color: #16a34a; color: #ffffff; }
-        .btn-pause { background-color: #d97706; color: #ffffff; }
-        .btn-reset { background-color: #475569; color: #ffffff; }
-        .btn-add   { background-color: #0284c7; color: #ffffff; }
-        .btn-zero  { background-color: #e11d48; color: #ffffff; }
+        .btn-icon {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        /* 🎨 誤操作を防ぐ明確な色分けと太枠 border */
+        /* 上段：主要アクション */
+        .btn-start { 
+            background-color: #15803d; 
+            color: #ffffff; 
+            border: 2px solid #22c55e;
+        }
+        .btn-pause { 
+            background-color: #b45309; 
+            color: #ffffff; 
+            border: 2px solid #f59e0b;
+        }
+        .btn-add { 
+            background-color: #0369a1; 
+            color: #ffffff; 
+            border: 2px solid #38bdf8;
+        }
+
+        /* 下段：状態変更・危険操作 */
+        .btn-reset { 
+            background-color: #334155; 
+            color: #cbd5e1; 
+            border: 2px solid #64748b;
+        }
+        .btn-zero { 
+            background-color: #be123c; 
+            color: #ffffff; 
+            border: 2px solid #f43f5e;
+        }
 
         /* トグルボタン（ループ） */
         .btn-toggle {
-            background-color: #334155;
-            color: #94a3b8;
-            border: 1px solid #475569;
+            background-color: #1e1b4b;
+            color: #a5b4fc;
+            border: 2px solid #6366f1;
         }
 
         .btn-toggle.active {
-            background-color: #8b5cf6;
+            background-color: #6d28d9;
             color: #ffffff;
-            border-color: #a78bfa;
-            box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+            border: 2px solid #c084fc;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 0 5px 0px rgba(0,0,0,0.4);
         }
 
-        /* 🔄 横画面（スマホを横にした時）：限界まで巨大化したタイマー表示 */
+        /* 🔄 横画面（スマホを横にした時） */
         @media (orientation: landscape) {
             body {
                 padding: 0;
@@ -149,7 +191,7 @@
                 border: none;
                 background-color: #000000;
                 box-shadow: none;
-                padding: 1vh 2vw;
+                padding: 2vh 2vw;
 
                 display: flex;
                 flex-direction: row;
@@ -157,10 +199,10 @@
                 justify-content: space-between;
             }
 
-            /* 左側：操作パネルエリア（幅を少しスリムに調整して数字領域を拡大） */
+            /* 左側：操作パネルエリア（3列×2行の真四角ボタン） */
             .left-panel {
-                width: 26vw;
-                max-width: 280px;
+                width: 32vw;
+                max-width: 360px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -168,16 +210,21 @@
             }
 
             .controls-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(3, 1fr);
                 gap: 8px;
+                padding: 8px;
             }
 
             .btn {
-                padding: 2.2vh 0;
-                font-size: 2.2vh;
+                font-size: 1.8vh;
+                padding: 4px;
             }
 
-            /* 右側：タイマー表示エリア（右側エリア全体を占有） */
+            .btn-icon {
+                font-size: 3vh;
+            }
+
+            /* 右側：タイマー表示エリア */
             .right-panel {
                 flex: 1;
                 height: 100vh;
@@ -187,7 +234,6 @@
                 overflow: hidden;
             }
 
-            /* 💥 限界までデカくした数字（縦幅と横幅の限界を動的計算） */
             .timer-display {
                 font-size: min(65vh, 23vw);
                 margin: 0;
@@ -208,14 +254,39 @@
                 <span id="wakeLockBadge" class="wake-lock-status">💡 常時点灯中</span>
             </div>
 
-            <!-- 6つの設定ボタン -->
+            <!-- 🔳 3列×2行 の真四角ボタンエリア -->
             <div class="controls-grid">
-                <button class="btn btn-start" onclick="startTimer()">▶ スタート</button>
-                <button class="btn btn-pause" onclick="pauseTimer()">⏸ 一時停止</button>
-                <button class="btn btn-reset" onclick="resetTimer()">🔄 リセット</button>
-                <button class="btn btn-add" onclick="addTime(1)">＋1分</button>
-                <button class="btn btn-zero" onclick="setZero()">🧹 0分 (クリア)</button>
-                <button id="loopBtn" class="btn btn-toggle" onclick="toggleLoop()">🔁 ループ</button>
+                <!-- 上段：日常操作 -->
+                <button class="btn btn-start" onclick="startTimer()">
+                    <span class="btn-icon">▶</span>
+                    <span>スタート</span>
+                </button>
+
+                <button class="btn btn-pause" onclick="pauseTimer()">
+                    <span class="btn-icon">⏸</span>
+                    <span>一時停止</span>
+                </button>
+
+                <button class="btn btn-add" onclick="addTime(1)">
+                    <span class="btn-icon">＋1</span>
+                    <span>1分追加</span>
+                </button>
+
+                <!-- 下段：設定・消去・ループ -->
+                <button class="btn btn-reset" onclick="resetTimer()">
+                    <span class="btn-icon">🔄</span>
+                    <span>リセット</span>
+                </button>
+
+                <button class="btn btn-zero" onclick="setZero()">
+                    <span class="btn-icon">🧹</span>
+                    <span>0分クリア</span>
+                </button>
+
+                <button id="loopBtn" class="btn btn-toggle" onclick="toggleLoop()">
+                    <span class="btn-icon">🔁</span>
+                    <span>ループ</span>
+                </button>
             </div>
         </div>
 
