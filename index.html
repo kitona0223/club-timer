@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLUB TIMER</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #0f172a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .timer-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 30px 20px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0 0 20px 0;
+            color: #cbd5e1;
+            letter-spacing: 1px;
+        }
+
+        /* ⏱️ タイマー数値表示 */
+        .timer-display {
+            font-family: monospace, sans-serif;
+            font-size: 72px;
+            font-weight: bold;
+            color: #38bdf8;
+            margin: 15px 0 25px 0;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        /* タイムアップ時の点滅アニメーション */
+        .time-up {
+            color: #ef4444 !important;
+            animation: flash 0.8s infinite alternate;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+        }
+
+        @keyframes flash {
+            0% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        /* 🔘 操作ボタンエリア */
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-start {
+            background-color: #16a34a;
+            color: #ffffff;
+        }
+
+        .btn-pause {
+            background-color: #d97706;
+            color: #ffffff;
+        }
+
+        .btn-reset {
+            background-color: #475569;
+            color: #ffffff;
+        }
+
+        /* ⚡ プリセットボタン */
+        .preset-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .btn-preset {
+            flex: 1;
+            background-color: #334155;
+            color: #f1f5f9;
+            border: 1px solid #475569;
+            padding: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-preset:active {
+            background-color: #475569;
+        }
+
+        /* ⚙️ 時間入力フォーム */
+        .custom-input {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .custom-input input {
+            width: 60px;
+            padding: 8px;
+            font-size: 16px;
+            text-align: center;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            background-color: #0f172a;
+            color: #ffffff;
+            outline: none;
+        }
+
+        /* 横画面対応 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            body { padding: 10px; }
+            .timer-card { max-width: 90vw; padding: 15px; }
+            .timer-display { font-size: 60px; margin: 5px 0 15px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timer-card">
+        <h1>⏱️ CLUB TIMER</h1>
+
+        <!-- タイマー表示 -->
+        <div id="display" class="timer-display">10:00</div>
+
+        <!-- メイン操作ボタン -->
+        <div class="controls">
+            <button id="startBtn" class="btn btn-start" onclick="toggleTimer()">スタート</button>
+            <button class="btn btn-reset" onclick="resetTimer()">リセット</button>
+        </div>
+
+        <!-- プリセットボタン -->
+        <div class="preset-group">
+            <button class="btn-preset" onclick="setPreset(1)">1分</button>
+            <button class="btn-preset" onclick="setPreset(5)">5分</button>
+            <button class="btn-preset" onclick="setPreset(10)">10分</button>
+            <button class="btn-preset" onclick="addTime(1)">＋1分</button>
+        </div>
+
+        <!-- 手動入力 -->
+        <div class="custom-input">
+            <input type="number" id="inputMin" value="10" min="0" max="99"> 分
+            <input type="number" id="inputSec" value="0" min="0" max="59"> 秒
+            <button class="btn-preset" style="flex:none; padding:8px 12px;" onclick="applyCustomTime()">設定</button>
+        </div>
+    </div>
+
+    <script>
+        let totalSeconds = 600; // 初期値：10分
+        let initialSeconds = 600;
+        let timerId = null;
+        let isRunning = false;
+
+        const displayEl = document.getElementById('display');
+        const startBtn = document.getElementById('startBtn');
+
+        // 時間の表示更新
+        function updateDisplay() {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            displayEl.innerText = 
+                String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+        }
+
+        // スタート / パラズ 切り替え
+        function toggleTimer() {
+            if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (totalSeconds <= 0) return;
+
+            isRunning = true;
+            startBtn.innerText = '一時停止';
+            startBtn.className = 'btn btn-pause';
+            displayEl.classList.remove('time-up');
+
+            timerId = setInterval(() => {
+                totalSeconds--;
+                updateDisplay();
+
+                if (totalSeconds <= 0) {
+                    clearInterval(timerId);
+                    isRunning = false;
+                    startBtn.innerText = 'スタート';
+                    startBtn.className = 'btn btn-start';
+                    displayEl.classList.add('time-up');
+                    playAlarmSound();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerId);
+            isRunning = false;
+            startBtn.innerText = '再開';
+            startBtn.className = 'btn btn-start';
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            totalSeconds = initialSeconds;
+            startBtn.innerText = 'スタート';
+            displayEl.classList.remove('time-up');
+            updateDisplay();
+        }
+
+        // プリセット設定
+        function setPreset(minutes) {
+            pauseTimer();
+            totalSeconds = minutes * 60;
+            initialSeconds = totalSeconds;
+            displayEl.classList.remove('time-up');
+            updateDisplay();
+        }
+
+        // 時間追加 (+1分など)
+        function addTime(minutes) {
+            totalSeconds += minutes * 60;
+            initialSeconds = totalSeconds;
+            updateDisplay();
+        }
+
+        // 手動入力適用
+        function applyCustomTime() {
+            pauseTimer();
+            const min = parseInt(document.getElementById('inputMin').value, 10) || 0;
+            const sec = parseInt(document.getElementById('inputSec').value, 10) || 0;
+            totalSeconds = (min * 60) + sec;
+            initialSeconds = totalSeconds;
+            displayEl.classList.remove('time-up');
+            updateDisplay();
+        }
+
+        // 🔊 Web Audio APIによるアラーム音
+        function playAlarmSound() {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            
+            const ctx = new AudioContext();
+            
+            function beep(freq, duration, delay) {
+                setTimeout(() => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    gain.gain.setValueAtTime(1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                    osc.stop(ctx.currentTime + duration);
+                }, delay);
+            }
+
+            beep(880, 0.15, 0);
+            beep(880, 0.15, 300);
+            beep(880, 0.15, 600);
+            beep(1760, 0.8, 900);
+        }
+
+        // 初期表示
+        updateDisplay();
+    </script>
+</body>
+</html>
