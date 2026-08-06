@@ -52,6 +52,17 @@
             font-weight: bold;
         }
 
+        /* 💡 スリープ防止インジケーター */
+        .wake-lock-status {
+            font-size: 11px;
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            display: none; /* 有効時にJSで表示 */
+        }
+
         /* ⏱️ デジタル時計フォント表示 (縦画面：画面幅いっぱいに拡大) */
         .timer-display {
             font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
@@ -105,7 +116,7 @@
         .btn-pause { background-color: #d97706; color: #ffffff; }
         .btn-reset { background-color: #475569; color: #ffffff; }
         .btn-add   { background-color: #0284c7; color: #ffffff; }
-        .btn-zero  { background-color: #e11d48; color: #ffffff; } /* 0分(クリア)用ボタン */
+        .btn-zero  { background-color: #e11d48; color: #ffffff; }
 
         /* トグルボタン（ループ） */
         .btn-toggle {
@@ -140,14 +151,12 @@
                 box-shadow: none;
                 padding: 2vh 3vw;
 
-                /* 左に設定ボタン、右に巨大タイマーを配置 */
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
             }
 
-            /* 左側：操作パネルエリア */
             .left-panel {
                 width: 30vw;
                 max-width: 320px;
@@ -167,7 +176,6 @@
                 font-size: 2.3vh;
             }
 
-            /* 右側：タイマー表示エリア */
             .right-panel {
                 flex: 1;
                 height: 100%;
@@ -176,7 +184,6 @@
                 justify-content: center;
             }
 
-            /* 💥 遠くからでも超くっきり見える最大級数字 (48vh) */
             .timer-display {
                 font-size: 48vh;
                 margin: 0;
@@ -189,49 +196,69 @@
 <body>
 
     <div class="timer-card">
-        <!-- 左サイドパネル（横画面時：左側 / 縦画面時：下部） -->
+        <!-- 左サイドパネル -->
         <div class="left-panel">
             <div class="header-status">
                 <span style="letter-spacing:1px;">⏱️ CLUB TIMER</span>
+                <span id="wakeLockBadge" class="wake-lock-status">💡 常時点灯中</span>
             </div>
 
             <!-- 6つの設定ボタン -->
             <div class="controls-grid">
-                <!-- ① スタート -->
                 <button class="btn btn-start" onclick="startTimer()">▶ スタート</button>
-                
-                <!-- ② 一時停止 -->
                 <button class="btn btn-pause" onclick="pauseTimer()">⏸ 一時停止</button>
-
-                <!-- ③ リセット -->
                 <button class="btn btn-reset" onclick="resetTimer()">🔄 リセット</button>
-
-                <!-- ④ +1分 -->
                 <button class="btn btn-add" onclick="addTime(1)">＋1分</button>
-
-                <!-- ⑤ 0分 (クリア) -->
                 <button class="btn btn-zero" onclick="setZero()">🧹 0分 (クリア)</button>
-
-                <!-- ⑥ ループ -->
                 <button id="loopBtn" class="btn btn-toggle" onclick="toggleLoop()">🔁 ループ</button>
             </div>
         </div>
 
-        <!-- 右サイドパネル（横画面時：右側 / 縦画面時：上部） -->
+        <!-- 右サイドパネル -->
         <div class="right-panel">
             <div id="display" class="timer-display">10:00</div>
         </div>
     </div>
 
     <script>
-        let totalSeconds = 600;      // 現在の残り秒数 (初期値 10分)
+        let totalSeconds = 600;      // 現在の残り秒数
         let initialSeconds = 600;    // リセット用の初期設定値
         let timerId = null;
         let isRunning = false;
         let isLoop = false;          // ループモード
+        let wakeLock = null;         // 画面スリープ防止ロック
 
         const displayEl = document.getElementById('display');
         const loopBtn = document.getElementById('loopBtn');
+        const wakeLockBadge = document.getElementById('wakeLockBadge');
+
+        // 💡 画面スリープ防止機能のON/OFF処理
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLockBadge.style.display = 'inline-block';
+                }
+            } catch (err) {
+                console.log('Wake Lock Error:', err);
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => {
+                    wakeLock = null;
+                    wakeLockBadge.style.display = 'none';
+                });
+            }
+        }
+
+        // タブ切り替えから戻った時の再取得処理
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible' && isRunning) {
+                await requestWakeLock();
+            }
+        });
 
         // 時間表示の更新
         function updateDisplay() {
@@ -242,11 +269,14 @@
         }
 
         // ① スタート
-        function startTimer() {
-            if (isRunning || totalSeconds <= 0) return; // 0秒の時はスタートしない
+        async function startTimer() {
+            if (isRunning || totalSeconds <= 0) return;
 
             isRunning = true;
             displayEl.classList.remove('time-up');
+
+            // 💡 タイマー開始と同時にスリープ防止を起動
+            await requestWakeLock();
 
             timerId = setInterval(() => {
                 if (totalSeconds > 0) {
@@ -258,14 +288,13 @@
                     playAlarmSound();
                     
                     if (isLoop && initialSeconds > 0) {
-                        // ループON：初期時間に戻して再スタート
                         totalSeconds = initialSeconds;
                         updateDisplay();
                     } else {
-                        // ループOFF：停止して点滅通知
                         clearInterval(timerId);
                         isRunning = false;
                         displayEl.classList.add('time-up');
+                        releaseWakeLock(); // タイマー完了でスリープ防止解除
                     }
                 }
             }, 1000);
@@ -275,9 +304,10 @@
         function pauseTimer() {
             clearInterval(timerId);
             isRunning = false;
+            releaseWakeLock(); // 一時停止時は解除
         }
 
-        // ③ リセット（前回の設定時間に戻す）
+        // ③ リセット
         function resetTimer() {
             pauseTimer();
             displayEl.classList.remove('time-up');
